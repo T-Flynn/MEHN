@@ -1,0 +1,109 @@
+{{#section 'head'}}
+    <!-- we want Google to ignore this page -->
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="vendor/datatables.net-bs/css/dataTables.bootstrap.min.css">
+    <style>
+        #example th {
+            display: none !important;
+        }
+        h3 {
+            margin: 0;
+            line-height:50px;
+        }
+        .blog-article {
+            margin-top: 20px;
+            text-indent: 2em;
+        }
+    </style>
+{{/section}}
+
+
+<section class="content row">
+    <div class="col-sm-10 center-block" style="float: none">
+        <table id="example" class="table table-striped table-bordered" cellspacing="0" width="100%"></table>
+    </div>
+</section>
+
+
+{{#section 'customjs'}}
+    <script src="vendor/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="vendor/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+    <script>
+        //文档就绪事件
+        $(document).ready(function () {
+            getBlogList();
+        });
+        function getBlogList() {
+            var para  ='';
+            $.ajax({
+                url:'/api/get-blog-list',
+                type: 'GET',
+                async:true,
+                data:para,
+                success: function(res)
+                {
+                    if(parseInt(res.code)==1) {
+                        var _blogSet = getblogArr(res.blog);
+                        renderTable(_blogSet);
+                        var article = $(".blog-article");
+                        for(let i = 0; i < article.length; i++) {
+                            if(article.eq(i).text().length > 100) {
+                                var articleContent = "";
+                                articleContent = article.eq(i).text().slice(0,100) + "...";
+                                article.eq(i).text(articleContent);
+                            }
+                        }
+
+                    }
+                }
+            });
+        }
+        //构造取得的数据
+        function getblogArr(blogSet) {
+            var _blogArr = blogSet;
+            var dataLength = _blogArr.length;
+            var blogData = [];
+
+            for(let i = 0; i<dataLength; i++) {
+                var arr = [];
+                var picStr = "";
+                var keywordsStr = "";
+                for(let x in _blogArr[i].picture) {
+                    picStr +=`<img src="${ _blogArr[i].picture[x] }" alt="" height="143">`
+                }
+                for(let x in _blogArr[i].keywords) {
+                    keywordsStr += `<span>${ _blogArr[i].keywords[x] }</span>&nbsp;&nbsp;`
+                }
+                arr[0] = `<div class="row">
+                    <div class="col-sm-1"><img src="${ _blogArr[i].photo }" alt="" height="50" style="float: right;border-radius: 50%"></div>
+                    <h3 class="col-sm-2">${ _blogArr[i].author }</h3>
+                    <h3 class="col-sm-9"><a href="/blog/detail/${ _blogArr[i]._id }">${ _blogArr[i].title }</a></h3>
+                    </div>
+                    <div class="row">
+                    <div class="col-sm-12 blog-article">${ _blogArr[i].content }</div>
+                    </div>
+                    <div class="row">
+                    <div class="col-sm-12">
+                    <img src="${ picStr }" alt="" height="143">
+                    </div>
+                    </div>
+                    <div class="row">
+                    <div class="col-sm-4">${ _blogArr[i].createdAt }</div>
+                    <div class="col-sm-5">${ keywordsStr }</div>
+                    <div class="col-sm-3"><span style="border-right: 1px solid #aaa;padding-right: 10px">评论: ${ _blogArr[i].comment.num }</span><span>阅读量: ${_blogArr[i].view}</span></div>
+                    </div>`;
+                blogData[i] = arr;
+            }
+            return blogData;
+        }
+        //渲染数据
+        function renderTable(blogSet) {
+            $('#example').DataTable( {
+                data:blogSet,
+                columns: [
+                    {title:""}
+                ]
+            } )
+        }
+    </script>
+{{/section}}

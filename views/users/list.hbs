@@ -1,0 +1,285 @@
+{{#section 'head'}}
+    <!-- we want Google to ignore this page -->
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="vendor/datatables.net-bs/css/dataTables.bootstrap.min.css">
+{{/section}}
+
+<section class="content">
+    <table id="example" class="table table-striped table-bordered" cellspacing="0" width="100%"></table>
+</section>
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" name="editForm" id="editForm" action="" method="POST">
+                    <div class="form-group">
+                        <label for="realName" class="col-sm-2 control-label">realName</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="realName" class="form-control" id="realName" placeholder="Real Name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="nickName" class="col-sm-2 control-label">nickName</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="nickName" class="form-control" id="nickName" placeholder="nickName">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="address" class="col-sm-2 control-label">adress</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="address" class="form-control" id="address" placeholder="address">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">gender</label>
+                        <div class="col-sm-10">
+                            <label>
+                                <input type="radio" name="gender" id="male" value="1">男
+                            </label>
+                            <label>
+                                <input type="radio" name="gender" id="female" value="0">女
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone" class="col-sm-2 control-label">phone</label>
+                        <div class="col-sm-10">
+                            <input type="tel" name="phone" class="form-control" id="phone" placeholder="phone" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="age" class="col-sm-2 control-label">age</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="age" class="form-control" id="age" placeholder="age">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="col-sm-2 control-label">email</label>
+                        <div class="col-sm-10">
+                            <input type="email" name="email" class="form-control" id="email" placeholder="email">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="validatorProFile()">Confirm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Delete</h4>
+            </div>
+            <form class="form-horizontal modal-body" name="confirmDelete" action="/signUp" method="POST">
+                <p class="alert alert-danger" style="display: block">
+                    Are you sure to delete this data?
+                    <input type="hidden" name="uid" id="uid">
+                </p>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="delData()">Confirm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{{#section 'customjs'}}
+    <script src="vendor/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="vendor/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+    <script>
+        //文档就绪事件
+        $(document).ready(function () {
+            getUsersList();
+        });
+        function getUsersList() {
+            var para  ='';
+            $.ajax({
+                url:'/users/get-users-list',
+                type: 'POST',
+                async:true,
+                data:para,
+                success: function(res)
+                {
+                    if(parseInt(res.code)==1) {
+                        var _userSet = getUserArr(res.users,res.role);
+                        renderTable(_userSet,res.role);
+                    }
+                }
+            });
+        }
+        //构造取得的数据
+        function getUserArr(userSet,role) {
+            var _userArr = userSet;
+            var jsoncount =_userArr.length;
+            var userData =  new Array();
+
+            for(var i=0;i<jsoncount;i++)
+            {
+                var _arr = new Array();
+                _arr[0]= "<input type='checkbox'>";
+                _arr[1]= _userArr[i].realName;
+                _arr[2]= _userArr[i].nickName;
+                _arr[3]= _userArr[i].address;
+                if(parseInt(_userArr[i].gender)==1)
+                {
+                    _arr[4]= "男";
+                }
+                if(parseInt(_userArr[i].gender)==0)
+                {
+                    _arr[4]= "女";
+                }
+                _arr[5]= _userArr[i].phone;
+                _arr[6]= _userArr[i].age;
+                _arr[7]=_userArr[i].email;
+                _arr[8]= '<button class="btn btn-default btn-sm" \
+			 data-toggle="modal" data-target="#editModal" onclick="edit(\''+_userArr[i]._id+'\')"> \
+			 <span class="glyphicon glyphicon-pencil"></span> \
+		  </button>  \
+		<button class="btn btn-danger btn-sm" data-toggle="modal" \
+		 data-target="#deleteModal" onclick="edit(\''+_userArr[i]._id+'\')"> \
+		<span class="glyphicon glyphicon-trash"></span> \
+	</button>';
+                if(!role) {
+                    _arr.shift();
+                    _arr.pop();
+                }
+                userData[i]=_arr;
+            }
+            return userData;
+        }
+        //渲染数据
+        var arr = [
+            { title: "<input type='checkbox'>",orderable: false },
+            { title: "realName",orderable: false },
+            { title: "nickName",orderable: false },
+            { title: "address",orderable: false },
+            { title: "gender" },
+            { title: "phone" },
+            { title: "age" },
+            { title: "email"},
+            { title: "操作",orderable: false }
+        ];
+        function renderTable(userSet,role) {
+            if(!role) {
+                arr.shift();
+                arr.pop();
+            }
+            $('#example').DataTable( {
+                data:userSet,
+                columns: arr
+            } )
+        }
+        function edit(id) {
+            $("#uid").val(id);
+            var para = $("#editForm").serialize();
+            $.ajax({
+                url:"/users/show-user/"+id,
+                type:"GET",
+                async:true,
+                data:para,
+                success:function (res) {
+                    console.log(res);
+                    if(parseInt(res.users[0].gender) === 0) {
+                        $("#female").attr("checked", "checked");
+                    }
+                    if(parseInt(res.users[0].gender) === 1) {
+                        $("#male").attr("checked", "checked");
+                    }
+                    $("#realName").val(res.users[0].realName);
+                    $("#phone").val(res.users[0].phone);
+                    $("#email").val(res.users[0].email);
+                    $("#nickName").val(res.users[0].nickName);
+                    $("#age").val(res.users[0].age);
+                    $("#address").val(res.users[0].address);
+                }
+            })
+        }
+        function validatorProFile() {
+            var ret = true;
+            if (!validator.isLength($("#realName").val(), {min: 2, max: 20})) {
+                ret = false;
+                alert("The real name should be between 4 and 20 letters");
+                $("#realName").focus();
+                $("#pwdWarning").css("display","block");
+                return false;
+            }
+            if (!validator.isLength($("#nickName").val(), {min: 2, max: 20})) {
+                ret = false;
+                alert("The nickName should be between 4 and 20 letters");
+                $("#nickName").focus();
+                $("#pwdWarning").css("display","block");
+                return false;
+            }
+            if (!validator.isLength($("#address").val(), {min: 1, max: 1000})) {
+                ret = false;
+                alert("The nickName should not be empty");
+                $("#address").focus();
+                $("#pwdWarning").css("display","block");
+                return false;
+            }
+            if ($("#age").val() < 10) {
+                ret = false;
+                alert("The age should not be under 10");
+                $("#address").focus();
+                $("#pwdWarning").css("display","block");
+                return false;
+            }
+            if (!validator.isEmail($("#email").val())) {
+                ret = false;
+                alert("The email is not correct");
+                $("#email").focus();
+                $("#phoneWarning").css("display","block");
+                return false;
+            }
+            if (ret) {
+                saveProfile();
+            }
+        }
+        function delData() {
+            $.ajax({
+                url:"/users/delete-profile/"+$("#uid").val(),
+                type:"POST",
+                async:true,
+                data:"",
+                success:function (res) {
+                    if(parseInt(res.code) === 0) {
+
+                    }
+                    else if(parseInt(res.code) === 1) {
+                        console.log(res);
+                        window.location.href = "/users/list"
+                    }
+                }
+            })
+        }
+        function saveProfile() {
+            var para = $("#editForm").serialize();
+            console.log(para);
+            $.ajax({
+                url: "/users/save-profile",
+                type: "POST",
+                async: true,
+                data: para,
+                success: function (res) {
+                    if (parseInt(res.code) === 0) {
+
+                    }
+                    else if (parseInt(res.code) === 1) {
+                        console.log(res);
+                        window.location.href = "/users/list"
+                    }
+                }
+            })
+        }
+    </script>
+{{/section}}

@@ -1,0 +1,38 @@
+{{#section 'head'}}
+    <!-- we want Google to ignore this page -->
+    <meta name="robots" content="noindex">
+{{/section}}
+
+<h1>contact page</h1>
+<p>We're testing some jQuery stuff.</p>
+
+<hr />
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-body" style="height: 500px">
+            <form name="sendEmail" action="/send-email" method="POST" class="form-horizontal col-sm-10">
+                <div class="form-group">
+                    <label for="subj" class="col-sm-2 control-label">theme</label>
+                    <input type="text" name="subj" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="to" class="col-sm-2 control-label">to</label>
+                    <input type="email" name="to" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="body" class="col-sm-2 control-label">body</label>
+                    <textarea name="body" cols="30" rows="10" class="form-control"></textarea>
+                </div>
+                <input type="submit" value="send">
+            </form>
+        </div>
+    </div>
+</div>
+{{> discount}}
+{{#section 'customjs'}}
+    <script>
+        $('document').ready(function(){
+            $('h1').html('jQuery Works');
+        });
+    </script>
+{{/section}}

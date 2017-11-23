@@ -1,0 +1,422 @@
+{{#section 'head'}}
+    <!-- we want Google to ignore this purl -->
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="vendor/datatables.net-bs/css/dataTables.bootstrap.min.css">
+    <style>
+        table.dataTable thead .sorting_asc:first-child:after,table.dataTable thead .sorting:first-child:after,table.dataTable thead .sorting_desc:first-child:after  {
+            content: "";
+        }
+        table.dataTable thead>tr>th.sorting_asc, table.dataTable thead>tr>th.sorting_desc,table.dataTable thead>tr>th.sorting {
+            padding-right: 0;
+        }
+        table.dataTable thead .sorting_asc, table.dataTable thead .sorting_desc{
+            cursor: default;
+        }
+    </style>
+{{/section}}
+
+
+<section class="content">
+    <button type="button" data-toggle="modal" data-target="#addModal">增加</button>&nbsp;&nbsp;&nbsp;<button type="button">删除</button>
+    <table id="example" class="table table-striped table-bordered" cellspacing="0" width="100%"></table>
+</section>
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Add</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" name="addForm" id="addForm" action="" method="POST">
+                    <div class="form-group">
+                        <label for="classTitle" class="col-sm-2 control-label">classTitle</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="classTitle" class="form-control" id="addclassTitle" placeholder="class title">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="title" class="col-sm-2 control-label">title</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="title" class="form-control" id="addtitle" placeholder="title">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="content" class="col-sm-2 control-label">content</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="content" class="form-control" id="addcontent" placeholder="content">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="author" class="col-sm-2 control-label">author</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="author" class="form-control" id="addauthor" placeholder="author">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">isShow</label>
+                        <div class="col-sm-10">
+                            <label>
+                                <input type="radio" name="isShow" id="addyes" value="1">是
+                            </label>
+                            <label>
+                                <input type="radio" name="isShow" id="addno" value="0" checked>否
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="url" class="col-sm-2 control-label">url</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="url" class="form-control" id="addurl" placeholder="url">
+                        </div>
+                    </div>
+                    <!--<div class="form-group">
+                        <label for="createdAt" class="col-sm-2 control-label">createdAt</label>
+                        <div class="col-sm-10">
+                            <input type="createdAt" name="createdAt" class="form-control" id="createdAt" placeholder="createdAt">
+                        </div>
+                    </div>-->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="validatorAddProFile()">Confirm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--编辑-->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" name="editForm" id="editForm" action="" method="POST">
+                    <div class="form-group">
+                        <label for="classTitle" class="col-sm-2 control-label">classTitle</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="classTitle" class="form-control" id="classTitle" placeholder="class title">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="title" class="col-sm-2 control-label">title</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="title" class="form-control" id="title" placeholder="title">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="content" class="col-sm-2 control-label">content</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="content" class="form-control" id="content" placeholder="content">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="author" class="col-sm-2 control-label">author</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="author" class="form-control" id="author" placeholder="author">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">isShow</label>
+                        <div class="col-sm-10">
+                            <label>
+                                <input type="radio" name="isShow" id="yes" value="1">是
+                            </label>
+                            <label>
+                                <input type="radio" name="isShow" id="no" value="0">否
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="url" class="col-sm-2 control-label">url</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="url" class="form-control" id="url" placeholder="url" readonly>
+                        </div>
+                    </div>
+                    <!--<div class="form-group">
+                        <label for="createdAt" class="col-sm-2 control-label">createdAt</label>
+                        <div class="col-sm-10">
+                            <input type="createdAt" name="createdAt" class="form-control" id="createdAt" placeholder="createdAt">
+                        </div>
+                    </div>-->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="validatorProFile()">Confirm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Delete</h4>
+            </div>
+            <form class="form-horizontal modal-body" name="confirmDelete" action="/signUp" method="POST">
+                <p class="alert alert-danger" style="display: block">
+                    Are you sure to delete this data?
+                    <input type="hidden" name="uid" id="uid">
+                </p>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="delData()">Confirm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{{#section 'customjs'}}
+    <script src="vendor/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="vendor/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+    <script>
+        //文档就绪事件
+        $(document).ready(function () {
+            getUsersList();
+        });
+        function getUsersList() {
+            var para  ='';
+            $.ajax({
+                url:'/users/get-users-list-2',
+                type: 'POST',
+                async:true,
+                data:para,
+                success: function(res)
+                {
+                    if(parseInt(res.code) == 1) {
+                       /* console.log(res.users);*/
+                        var _cmsSet = getCmsArr(res.cms,res.role);
+                        renderTable(_cmsSet,res.role);
+                    }
+                }
+            });
+        }
+        //构造取得的数据
+        function getCmsArr(cmsSet,role) {
+            console.log(role);
+            var _cmsArr = cmsSet;
+            var jsoncount =_cmsArr.length;
+            var cmsData =  new Array();
+            for(var i=0;i<jsoncount;i++)
+            {
+                var _arr = new Array();
+                _arr[0]='<input type="checkbox">';
+                _arr[1]= _cmsArr[i].classTitle;
+                _arr[2]= _cmsArr[i].title;
+                _arr[3]= _cmsArr[i].content;
+                _arr[4]= _cmsArr[i].author;
+                if(parseInt(_cmsArr[i].isShow)==1)
+                {
+                    _arr[5]= "是";
+                }
+                if(parseInt(_cmsArr[i].isShow)==0)
+                {
+                    _arr[5]= "否";
+                }
+                _arr[6]= _cmsArr[i].url;
+                _arr[7]= _cmsArr[i].createdAt;
+                _arr[8]= '<button class="btn btn-default btn-sm" \
+			 data-toggle="modal" data-target="#editModal" onclick="edit(\''+_cmsArr[i]._id+'\')"> \
+			 <span class="glyphicon glyphicon-pencil"></span> \
+		  </button>  \
+		<button class="btn btn-danger btn-sm" data-toggle="modal" \
+		 data-target="#deleteModal" onclick="edit(\''+_cmsArr[i]._id+'\')"> \
+		<span class="glyphicon glyphicon-trash"></span> \
+	</button>';
+                if(!role) {
+                    _arr.shift();
+                    _arr.pop();
+                }
+                cmsData[i]=_arr;
+            }
+            return cmsData;
+        }
+        //渲染数据
+        var arr = [
+            { title:'<input type="checkbox">'},
+            { title: "classTitle" },
+            { title: "title" },
+            { title: "content" },
+            { title: "author" },
+            { title: "isShow" },
+            { title: "url" },
+            { title: "createAt"},
+            { title: "操作",orderable: false }
+        ];
+        function renderTable(cmsSet,role) {
+            if(!role) {
+                arr.pop();
+                arr.shift();
+            }
+            $('#example').DataTable( {
+                data:cmsSet,
+                columns: arr
+            } );
+        }
+        /* 编辑事件 */
+        function edit(id) {
+            $("#uid").val(id);
+            var para = $("#editForm").serialize();
+            $.ajax({
+                url:"/users/show-cms/"+id,
+                type:"GET",
+                async:true,
+                data:para,
+                success:function (res) {
+                    console.log(res);
+                    if(parseInt(res.cms[0].isShow) === 0) {
+                        $("#no").attr("checked", "checked");
+                    }
+                    if(parseInt(res.cms[0].isShow) === 1) {
+                        $("#yes").attr("checked", "checked");
+                    }
+                    $("#classTitle").val(res.cms[0].classTitle);
+                    $("#author").val(res.cms[0].author);
+                    $("#createdAt").val(res.cms[0].createdAt);
+                    $("#title").val(res.cms[0].title);
+                    $("#url").val(res.cms[0].url);
+                    $("#content").val(res.cms[0].content);
+                }
+            })
+        }
+        function validatorAddProFile() {
+            var ret = true;
+            if (!validator.isLength($("#addclassTitle").val(), {min: 2, max: 20})) {
+                ret = false;
+                alert("The classTitle should be between 2 and 20 letters");
+                $("#addclassTitle").focus();
+                $("#pwdWarning").css("display","block");
+                return false;
+            }
+            if (!validator.isLength($("#addtitle").val(), {min: 2, max: 20})) {
+                ret = false;
+                alert("The title should be between 4 and 20 letters");
+                $("#addtitle").focus();
+                $("#addpwdWarning").css("display","block");
+                return false;
+            }
+            if (!validator.isLength($("#addcontent").val(), {min: 1, max: 1000})) {
+                ret = false;
+                alert("The content should not be empty");
+                $("#addcontent").focus();
+                $("#pwdWarning").css("display","block");
+                return false;
+            }
+            if (!validator.isLength($("#addauthor").val(), {min: 1, max: 1000})) {
+                ret = false;
+                alert("The url should not be empty");
+                $("#addauthor").focus();
+                $("#pwdWarning").css("display","block");
+                return false;
+            }
+            if (!validator.isLength($("#addurl").val(), {min: 1, max: 1000})) {
+                ret = false;
+                alert("The url should not be empty");
+                $("#addurl").focus();
+                $("#pwdWarning").css("display","block");
+                return false;
+            }
+            if (ret) {
+                cmsUpload();
+            }
+        }
+        function validatorProFile() {
+            var ret = true;
+            if (!validator.isLength($("#classTitle").val(), {min: 2, max: 20})) {
+                ret = false;
+                alert("The classTitle should be between 2 and 20 letters");
+                $("#classTitle").focus();
+                $("#pwdWarning").css("display","block");
+                return false;
+            }
+            if (!validator.isLength($("#title").val(), {min: 2, max: 20})) {
+                ret = false;
+                alert("The title should be between 4 and 20 letters");
+                $("#title").focus();
+                $("#pwdWarning").css("display","block");
+                return false;
+            }
+            if (!validator.isLength($("#content").val(), {min: 1, max: 1000})) {
+                ret = false;
+                alert("The content should not be empty");
+                $("#content").focus();
+                $("#pwdWarning").css("display","block");
+                return false;
+            }
+            if (!validator.isLength($("#url").val(), {min: 1, max: 1000})) {
+                ret = false;
+                alert("The url should not be empty");
+                $("#url").focus();
+                $("#pwdWarning").css("display","block");
+                return false;
+            }
+            if (ret) {
+                saveProfile();
+            }
+        }
+        function delData() {
+            $.ajax({
+                url: "/users/delete-cms/" + $("#uid").val(),
+                type: "POST",
+                async: true,
+                data: "",
+                success: function (res) {
+                    if (parseInt(res.code) === 0) {
+
+                    }
+                    else if (parseInt(res.code) === 1) {
+                        console.log(res);
+                        window.location.href = "/users/list-2"
+                    }
+                }
+            })
+        }
+        function cmsUpload() {
+            var para = $("#addForm").serialize();
+            console.log(para);
+            $.ajax({
+                url: 'users/cms',
+                type: 'POST',
+                async: true,
+                data: para,
+                success: function (res) {
+                    if(parseInt(res.code) === 0) {
+                        alert("failed");
+                    }
+                    else if(parseInt(res.code) === 1) {
+                        alert(res.msg);
+                        console.log(res);
+                        window.location.href = "/users/list-2";
+                    }
+                }
+            });
+            /*alert(para);*/
+        }
+        function saveProfile() {
+            var para = $("#editForm").serialize();
+            console.log(para);
+            $.ajax({
+                url: "/users/save-cms",
+                type: "POST",
+                async: true,
+                data: para,
+                success: function (res) {
+                    if (parseInt(res.code) === 0) {
+
+                    }
+                    else if (parseInt(res.code) === 1) {
+                        console.log(res);
+                        window.location.href = "/users/list-2"
+                    }
+                }
+            })
+        }
+    </script>
+{{/section}}
